@@ -1,0 +1,12 @@
+streamlit
+sqlmodel
+SQLAlchemy
+alembic
+psycopg2-binary
+pydantic
+python-dotenv
+Jinja2
+reportlab
+transitions
+boto3
+streamlit-authenticator
