@@ -10,3 +10,4 @@ reportlab
 transitions
 boto3
 streamlit-authenticator
+Werkzeug==3.1.3
