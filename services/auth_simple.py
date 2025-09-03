@@ -8,15 +8,31 @@ import streamlit as st
 
 AUTH_PATH = "config/auth.yaml"
 
-def load_cfg(path: str = AUTH_PATH) -> Dict[str, Any]:
-    p = Path(path)
-    if not p.exists():
-        return {}
-    try:
-        return yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-    except Exception:
-        # Corrupt of onleesbaar YAML: fail-closed met lege config
-        return {}
+# services/auth_simple.py
+import yaml, streamlit as st
+from pathlib import Path
+
+def load_cfg():
+    """
+    Leest auth-config uit:
+    1) st.secrets['auth']['yaml']  (Cloud voorkeursplek)
+    2) st.secrets['auth_yaml']     (fallback)
+    3) lokaal bestand config/auth.yaml (lokaal ontwikkelen)
+    """
+    # 1) Cloud (voorkeur)
+    raw = st.secrets.get("auth", {}).get("yaml")
+    if not raw:
+        # 2) fallback
+        raw = st.secrets.get("auth_yaml")
+    if raw:
+        return yaml.safe_load(raw)
+
+    # 3) lokaal bestand als fallback
+    p = Path("config/auth.yaml")
+    if p.exists():
+        return yaml.safe_load(p.read_text(encoding="utf-8"))
+
+    raise RuntimeError("Geen auth-config gevonden in Secrets of config/auth.yaml")
 
 def try_login(email: str, password: str, cfg: Dict[str, Any]) -> Optional[str]:
     """Valideer login op basis van auth.yaml (zelfde schema als streamlit-authenticator)."""
